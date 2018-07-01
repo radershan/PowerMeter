@@ -5,6 +5,7 @@ er#include "PubSubClient.h"
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
+//OLED Display
 #define OLED_RESET LED_BUILTIN  //4
 Adafruit_SSD1306 display(OLED_RESET);
 
@@ -30,6 +31,7 @@ char* server = "mqtt.thingspeak.com";
 WiFiClient wifiClient;
 PubSubClient client(server, 1883, wifiClient);
 
+//Reconnect to server when disconnects due to timeout
 void reconnect(){
    String clientName="ESP-Thingspeak";
   Serial.print("Connecting to ");
@@ -47,22 +49,26 @@ void reconnect(){
   }
   }
 
+//Acces device from server
 void callback(char* topic, byte* payload, unsigned int length) {
   // handle message arrived
 }
 
+//get voltage reading
 void ReadVolt(){
   volt=  random(300);
   Serial.print("V= ");
   Serial.println(volt);
   }
 
+//get amp reading
 void ReadAmp(){
   amp=  random(300);
   Serial.print("A= ");
   Serial.println(amp);
   }
 
+//push date to the MQTT server
 void PushData(){
   String payload="field1=";
   payload+=String(volt);
@@ -86,6 +92,7 @@ void PushData(){
     }
   }
 
+//show readings in display
 void Display() {
   display.clearDisplay();
   display.setTextColor(WHITE);
@@ -102,6 +109,7 @@ void Display() {
   display.println(volt * amp);
   display.display();
 }
+
 
 void setup() {
   Serial.begin(115200);
