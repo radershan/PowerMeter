@@ -5,6 +5,10 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <Adafruit_INA219.h>
+#include <DNSServer.h>
+#include <ESP8266WebServer.h>
+#include <WiFiManager.h>  
+
 
 //OLED Display
 #define OLED_RESET LED_BUILTIN  //4
@@ -27,10 +31,6 @@ float busVoltage = 0;
 float current_mA = 0;
 float loadVoltage = 0;
 float energy = 0;
-
-//Wifi settings
-const char* ssid = "10-05";
-const char* password = "82918889";
 
 //mqtt topic url
 char* topic = "channels/530407/publish/VAIDHYXEK4MSOA5A"; //channels/<channelID>/publish/API
@@ -99,17 +99,17 @@ void Display() {
   display.println(loadVoltage);
   display.setCursor(35, 0);
   display.println("V");
-  display.setCursor(50, 0);
+  display.setCursor(50, 10);
   display.println(current_mA);
-  display.setCursor(95, 0);
+  display.setCursor(95, 10);
   display.println("mA");
-  display.setCursor(0, 10);
-  display.println(loadVoltage * current_mA);
-  display.setCursor(65, 10);
-  display.println("mW");
   display.setCursor(0, 20);
-  display.println(energy);
+  display.println(loadVoltage * current_mA);
   display.setCursor(65, 20);
+  display.println("mW");
+  display.setCursor(0, 30);
+  display.println(energy);
+  display.setCursor(65, 30);
   display.println("mWh");
   display.display();
 }
@@ -120,6 +120,13 @@ void GetReadings() {
   current_mA = ina219.getCurrent_mA();
   loadVoltage = busVoltage + (shuntVoltage / 1000);
   energy = energy + loadVoltage * current_mA / 3600;
+
+  Serial.print("Amp : ");
+  Serial.println(current_mA);
+  Serial.print("Volt : ");
+  Serial.println(loadVoltage);
+  Serial.print("Energy : ");
+  Serial.println(energy);
 }
 
 void setup() {
@@ -131,21 +138,12 @@ void setup() {
   display.clearDisplay();
   display.display();
   
-  Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
-  
-  WiFi.begin(ssid, password);
-  
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("");
-  Serial.println("WiFi connected");  
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
 
+  WiFiManager wifiManager;
+  wifiManager.autoConnect("AutoConnectAP");
+  Serial.println("Connected to Wifi!");
+
+  
 String clientName="ESP-Thingspeak";
   Serial.print("Connecting to ");
   Serial.print(server);
