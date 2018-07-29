@@ -35,7 +35,7 @@ float energy = 0;
 //mqtt topic url
 char* topic = "channels/530407/publish/VAIDHYXEK4MSOA5A"; //channels/<channelID>/publish/API
 char* server = "mqtt.thingspeak.com";
-
+String payload;
 
 WiFiClient wifiClient;
 PubSubClient client(server, 1883, wifiClient);
@@ -50,6 +50,15 @@ void reconnect(){
   
    if (client.connect((char*) clientName.c_str())) {
     Serial.println("Connected to MQTT broker");
+    Serial.print("Sending payload: ");
+    Serial.println(payload);
+    
+    if (client.publish(topic, (char*) payload.c_str())) {
+      Serial.println("Publish ok");
+    }
+    else {
+      Serial.println("Publish failed");
+    }
   }
   else {
     Serial.println("MQTT connect failed");
@@ -66,7 +75,8 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
 //push date to the MQTT server
 void PushData(){
-  String payload="field1=";
+  payload="";
+  payload="field1=";
   payload+=String(loadVoltage);
   payload+="&field2=";
   payload+=String(current_mA);
