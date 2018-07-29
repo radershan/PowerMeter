@@ -95,6 +95,7 @@ void PushData(){
       Serial.println("Publish failed");
     }
   }
+  else
   {
     reconnect();
     }
